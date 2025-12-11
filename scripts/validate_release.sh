@@ -257,7 +257,7 @@ echo "Phase 6: Documentation"
 echo "----------------------"
 
 # Check critical documentation files
-DOCS=("README.md" "Docs/SETUP.md" "Docs/ARCHITECTURE.md" "Docs/API.md" "Docs/CHANGELOG.md" "Docs/ACCEPTANCE_CHECKLIST.md")
+DOCS=("README.md" "docs/SETUP.md" "docs/ARCHITECTURE.md" "docs/API.md" "docs/CHANGELOG.md" "docs/ACCEPTANCE_CHECKLIST.md")
 for doc in "${DOCS[@]}"; do
     if [ -f "$doc" ]; then
         check_pass "$doc exists"
@@ -267,7 +267,7 @@ for doc in "${DOCS[@]}"; do
 done
 
 # Check for autonomous release prompt
-if [ -f "Docs/AUTONOMOUS_RELEASE_PROMPT.md" ]; then
+if [ -f "docs/AUTONOMOUS_RELEASE_PROMPT.md" ]; then
     check_pass "Autonomous release prompt exists"
 else
     check_warn "Autonomous release prompt not found"

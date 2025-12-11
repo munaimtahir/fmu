@@ -82,11 +82,11 @@ run_test "Audit module" "test -f sims_backend/audit/middleware.py"
 
 # 8. Documentation Checks
 cd ..
-run_test "API documentation" "test -f Docs/API.md"
-run_test "Data model documentation" "test -f Docs/DATAMODEL.md"
-run_test "Setup guide" "test -f Docs/SETUP.md"
-run_test "Changelog" "test -f Docs/CHANGELOG.md"
-run_test "Completion summary" "test -f Docs/archive/STAGE4_COMPLETION_SUMMARY.md"
+run_test "API documentation" "test -f docs/API.md"
+run_test "Data model documentation" "test -f docs/DATAMODEL.md"
+run_test "Setup guide" "test -f docs/SETUP.md"
+run_test "Changelog" "test -f docs/CHANGELOG.md"
+run_test "Completion summary" "test -f docs/archive/STAGE4_COMPLETION_SUMMARY.md"
 
 # 9. Infrastructure Checks
 run_test "Nightly backup workflow" "test -f .github/workflows/nightly-backup.yml"

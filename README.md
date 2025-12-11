@@ -59,7 +59,7 @@ docker compose -f docker-compose.prod.yml exec backend python manage.py seed_dem
 # Access via: http://localhost
 ```
 
-**See [Docs/SECURITY_DEPLOYMENT.md](Docs/SECURITY_DEPLOYMENT.md) for production configuration.**
+**See [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) for production configuration.**
 
 ### Using Docker (Step by Step)
 ```bash
@@ -261,6 +261,7 @@ Fmu/
 ├── backend/                    # Django backend
 │   ├── sims_backend/          # Django project settings
 │   ├── core/                  # Core app
+│   ├── tests/                 # Backend tests
 │   ├── manage.py              # Django management script
 │   ├── requirements.txt       # Python dependencies
 │   ├── Dockerfile             # Backend Docker config
@@ -274,17 +275,29 @@ Fmu/
 ├── nginx/                      # Nginx configuration
 │   ├── nginx.conf             # Main config
 │   └── conf.d/                # Site configs
-├── Docs/                       # Documentation
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   ├── DATAMODEL.md
-│   ├── SETUP.md
-│   ├── archive/               # Historical completion reports
-│   └── ...
-├── docker-compose.yml          # Docker services
+├── docs/                       # Documentation
+│   ├── ARCHITECTURE.md        # System architecture
+│   ├── API.md                 # API reference
+│   ├── DATAMODEL.md           # Data models
+│   ├── SETUP.md               # Setup guide
+│   ├── CI-CD.md               # CI/CD documentation
+│   ├── SECURITY_DEPLOYMENT.md # Production security
+│   ├── archive/               # Historical reports
+│   └── adr/                   # Architecture Decision Records
+├── scripts/                    # Utility scripts
+│   ├── validate_release.sh    # Release validation
+│   ├── test_*.sh              # Testing scripts
+│   └── quick-start.sh         # Quick setup
+├── archive/                    # Historical/legacy files
+│   ├── reports/               # Old completion reports
+│   ├── diagnostics/           # Historical diagnostics
+│   └── logs/                  # Old log files
+├── docker-compose.yml          # Development services
+├── docker-compose.prod.yml    # Production services
 ├── .env.example               # Environment template
-├── MIGRATION_LOG.md           # Repository change history
-└── README.md                  # This file
+├── Makefile                   # Build commands
+├── README.md                  # This file
+└── CONTRIBUTING.md            # Contribution guide
 ```
 
 ## Testing
@@ -373,8 +386,8 @@ Key environment variables (see `.env.example` for full list):
 - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`
 
 **See:**
-- [Docs/SECURITY_DEPLOYMENT.md](Docs/SECURITY_DEPLOYMENT.md) for production security
-- [Docs/EMAIL_CONFIG.md](Docs/EMAIL_CONFIG.md) for email configuration
+- [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) for production security
+- [docs/EMAIL_CONFIG.md](docs/EMAIL_CONFIG.md) for email configuration
 
 ## Deployment
 
@@ -384,7 +397,7 @@ Key environment variables (see `.env.example` for full list):
 # 1. Clone and configure
 git clone https://github.com/munaimtahir/Fmu.git && cd Fmu
 cp .env.example .env
-# Edit .env with production values (see Docs/SECURITY_DEPLOYMENT.md)
+# Edit .env with production values (see docs/SECURITY_DEPLOYMENT.md)
 
 # 2. Deploy with production configuration
 docker compose -f docker-compose.prod.yml up -d --build
@@ -403,28 +416,29 @@ docker compose -f docker-compose.prod.yml exec backend python manage.py createsu
 - Set `DJANGO_DEBUG=False` in production
 - Use strong `DJANGO_SECRET_KEY`
 - Configure `DJANGO_ALLOWED_HOSTS` with your domain
-- Enable HTTPS (see [Docs/SECURITY_DEPLOYMENT.md](Docs/SECURITY_DEPLOYMENT.md))
+- Enable HTTPS (see [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md))
 
 **Complete guides:**
-- [Docs/SETUP.md](Docs/SETUP.md) - Detailed deployment instructions
-- [Docs/SECURITY_DEPLOYMENT.md](Docs/SECURITY_DEPLOYMENT.md) - Production security
-- [Docs/CI-CD.md](Docs/CI-CD.md) - CI/CD pipeline documentation
+- [docs/SETUP.md](docs/SETUP.md) - Detailed deployment instructions
+- [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) - Production security
+- [docs/CI-CD.md](docs/CI-CD.md) - CI/CD pipeline documentation
 
 ## 📄 Documentation
 
-Complete documentation is available in the [Docs/](Docs/) directory:
+Complete documentation is available in the [docs/](docs/) directory:
 
-- **[Architecture](Docs/ARCHITECTURE.md)** - System design and components
-- **[API Reference](Docs/API.md)** - Complete endpoint documentation  
-- **[Data Model](Docs/DATAMODEL.md)** - Database schema and ERD
-- **[Setup Guide](Docs/SETUP.md)** - Deployment and configuration
-- **[Security & Deployment](Docs/SECURITY_DEPLOYMENT.md)** - Production security guide
-- **[Email Configuration](Docs/EMAIL_CONFIG.md)** - Email setup guide
+- **[Repository Structure](docs/REPO_STRUCTURE.md)** - Directory organization guide
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
+- **[API Reference](docs/API.md)** - Complete endpoint documentation  
+- **[Data Model](docs/DATAMODEL.md)** - Database schema and ERD
+- **[Setup Guide](docs/SETUP.md)** - Deployment and configuration
+- **[Security & Deployment](docs/SECURITY_DEPLOYMENT.md)** - Production security guide
+- **[Email Configuration](docs/EMAIL_CONFIG.md)** - Email setup guide
 - **[Contributing](CONTRIBUTING.md)** - Contribution guidelines
-- **[Changelog](Docs/CHANGELOG.md)** - Version history
-- **[Tests](Docs/TESTS.md)** - Testing documentation
-- **[CI/CD](Docs/CI-CD.md)** - Pipeline configuration
-- **[Roles & Permissions](Docs/ROLES.md)** - User roles and access control
+- **[Changelog](docs/CHANGELOG.md)** - Version history
+- **[Tests](docs/TESTS.md)** - Testing documentation
+- **[CI/CD](docs/CI-CD.md)** - Pipeline configuration
+- **[Roles & Permissions](docs/ROLES.md)** - User roles and access control
 
 ## 🎯 Demo Credentials
 
@@ -439,11 +453,11 @@ After running `seed_demo`, use these credentials to explore different user roles
 
 **Additional accounts:**
 - Faculty: `faculty1`, `faculty2`, `faculty3` (password: `faculty123`)
-- Each role demonstrates different permission levels per [Docs/ROLES.md](Docs/ROLES.md)
+- Each role demonstrates different permission levels per [docs/ROLES.md](docs/ROLES.md)
 
 ## Contributing
 
-Please read [Docs/CONTRIBUTING.md](Docs/CONTRIBUTING.md) for contribution guidelines.
+Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.
 
 We welcome contributions! Please:
 1. Fork the repository
@@ -456,7 +470,7 @@ We welcome contributions! Please:
 
 For issues, questions, or contributions:
 
-- 📖 [Complete Documentation](Docs/)
+- 📖 [Complete Documentation](docs/)
 - 🐛 [Issue Tracker](https://github.com/munaimtahir/Fmu/issues)
 - 📧 Contact: munaimtahir@users.noreply.github.com
 

@@ -113,14 +113,14 @@ else
 fi
 
 # Check API documentation
-if [ -f "Docs/API.md" ]; then
+if [ -f "docs/API.md" ]; then
     check_pass "API.md documentation exists"
 else
     check_fail "API.md missing"
 fi
 
 # Check data model documentation
-if [ -f "Docs/DATAMODEL.md" ]; then
+if [ -f "docs/DATAMODEL.md" ]; then
     check_pass "DATAMODEL.md documentation exists"
 else
     check_fail "DATAMODEL.md missing"
@@ -187,7 +187,7 @@ AI_DOCS=(
 
 DOC_PASSED=0
 for doc in "${AI_DOCS[@]}"; do
-    if [ -f "Docs/$doc" ]; then
+    if [ -f "docs/$doc" ]; then
         ((DOC_PASSED++))
     fi
 done
@@ -199,14 +199,14 @@ else
 fi
 
 # Check CHANGELOG
-if [ -f "Docs/CHANGELOG.md" ]; then
+if [ -f "docs/CHANGELOG.md" ]; then
     check_pass "CHANGELOG.md exists"
 else
     check_fail "CHANGELOG.md missing"
 fi
 
 # Check completion report (now archived)
-if [ -f "Docs/archive/FINAL_SESSION_COMPLETION_REPORT.md" ]; then
+if [ -f "docs/archive/FINAL_SESSION_COMPLETION_REPORT.md" ]; then
     check_pass "Final session completion report exists (archived)"
 else
     check_fail "Final completion report missing"
