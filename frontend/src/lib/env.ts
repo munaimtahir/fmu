@@ -18,7 +18,7 @@ interface Env {
 /**
  * An object containing the environment variables for the application.
  *
- * @property {string} apiBaseUrl The base URL for the API. Defaults to 'http://localhost:8000'.
+ * @property {string} apiBaseUrl The base URL for the API. Defaults to empty string (use relative URLs).
  * @property {boolean} isDevelopment True if the application is in development mode.
  * @property {boolean} isProduction True if the application is in production mode.
  */
