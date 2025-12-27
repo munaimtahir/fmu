@@ -1,0 +1,155 @@
+# ============================================
+# Coolify + Traefik Deployment Reference
+# ============================================
+# This compose file is a REFERENCE for Coolify deployment structure.
+# In Coolify, you will deploy backend and frontend as SEPARATE resources.
+# This file shows how services should be configured.
+# 
+# IMPORTANT: NO host ports are published (no "80:80", "8000:8000", etc.)
+# Traefik (via Coolify) handles all routing and TLS termination.
+# ============================================
+
+services:
+  # ============================================
+  # Backend Service (Django API)
+  # Deploy as separate Coolify resource
+  # Domain: api.yourdomain.com
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn sims_backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    environment:
+      # Database
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      # Django Core
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_DEBUG=False
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      # Proxy Settings (CRITICAL for Traefik)
+      - USE_X_FORWARDED_HOST=True
+      - SECURE_PROXY_SSL_HEADER=True
+      - SECURE_SSL_REDIRECT=False
+      # CORS/CSRF
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS}
+      # Redis
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      # Email
+      - EMAIL_BACKEND=${EMAIL_BACKEND}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USE_TLS=${EMAIL_USE_TLS}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    # NO ports published - Traefik routes to container port 8000
+
+  # ============================================
+  # Frontend Service (React/Vite)
+  # Deploy as separate Coolify resource
+  # Domain: app.yourdomain.com
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    restart: unless-stopped
+    # NO ports published - Traefik routes to container port 80
+
+  # ============================================
+  # Background Worker (RQ)
+  # ============================================
+  rqworker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python manage.py rqworker default
+    volumes:
+      - media_volume:/app/media
+    environment:
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import django_rq; queue = django_rq.get_queue('default'); queue.connection.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ============================================
+  # Database (PostgreSQL)
+  # ============================================
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    # NO ports published - internal only
+
+  # ============================================
+  # Redis Cache/Queue
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    # NO ports published - internal only
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

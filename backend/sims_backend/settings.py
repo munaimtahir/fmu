@@ -38,6 +38,17 @@ ALLOWED_HOSTS = [
     ).split(",")
 ]
 
+# Proxy settings for deployment behind reverse proxy (Traefik/Coolify)
+# These settings ensure Django works correctly when HTTPS is terminated at the proxy
+USE_X_FORWARDED_HOST = os.getenv("USE_X_FORWARDED_HOST", "False").lower() == "true"
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https")
+    if os.getenv("SECURE_PROXY_SSL_HEADER", "False").lower() == "true"
+    else None
+)
+# Control SSL redirect (should be False when Traefik handles HTTPS)
+SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").lower() == "true"
+
 
 # Application definition
 
