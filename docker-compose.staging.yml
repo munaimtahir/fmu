@@ -4,7 +4,9 @@
 # This file uses nginx as a gateway with port 80/443 published.
 # This is NOT compatible with Coolify + Traefik deployment.
 # 
-# For Coolify deployment, use docker-compose.coolify.yml as reference.
+# For Coolify deployments, define services via the Coolify UI as separate
+# resources. Use docker-compose.coolify.yml only as a REFERENCE template
+# for configuring those resources; do not deploy this file directly.
 # For local development, use docker-compose.local.yml
 # ============================================
 

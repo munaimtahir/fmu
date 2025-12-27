@@ -135,7 +135,7 @@ VITE_API_URL=https://api.yourdomain.com
 5. **Environment Variables:**
    - Click **"Environment Variables"** tab
    - Add ALL backend variables from Step 1
-   - **Important:** Set `DB_HOST=sims-postgres` and `REDIS_HOST=sims-redis` (your service names)
+   - **Important:** Set `DB_HOST` to match your PostgreSQL service name (e.g., `sims-postgres`) and `REDIS_HOST` to match your Redis service name (e.g., `sims-redis`). These service names work when all backend services (postgres, redis, backend, rqworker) are deployed together in the same Coolify resource or explicitly connected via a shared network.
 
 6. **Health Check:**
    - **Path:** `/healthz/`
@@ -171,11 +171,13 @@ VITE_API_URL=https://api.yourdomain.com
 5. **Environment Variables:**
    - Add same database and Redis variables as backend
    - Must include: `DB_*`, `REDIS_*`, `DJANGO_SECRET_KEY`
+   - **Important:** If deploying as a separate resource from the backend, ensure `DB_HOST` and `REDIS_HOST` point to accessible services, or deploy backend services (postgres, redis, backend, rqworker) together in the same resource for automatic network connectivity.
 
 6. **Storage:**
    - Share media volume with backend:
      - **Source:** `/app/media`
      - **Mount:** `/app/media`
+   - **Important:** If backend and RQ worker are separate resources, both must mount persistent volumes at the same path, or deploy them together to automatically share the volume.
 
 7. Click **"Deploy"**
 
@@ -219,19 +221,38 @@ Coolify automatically configures Let's Encrypt SSL certificates for your domains
 
 ## Network Architecture in Coolify
 
+### Recommended Deployment Model
+
+For optimal resource sharing and network communication, we recommend deploying services in **two main resources**:
+
+**Resource 1: Backend Stack** (deployed together in one resource)
 ```
 sims-postgres (internal only)
-   ↓
 sims-redis (internal only)
-   ↓
 sims-backend:8000 ← Traefik → api.yourdomain.com
-   ↓
 sims-rqworker (internal only)
+```
 
+**Resource 2: Frontend** (deployed separately)
+```
 sims-frontend:80 ← Traefik → app.yourdomain.com
 ```
 
-**Important:** All services are on the same Docker network created by Coolify. They communicate using service names.
+### Network Communication
+
+- **Backend Stack Services:** When deployed together (postgres, redis, backend, rqworker), they share the same Docker network automatically. Services communicate using service names (e.g., `DB_HOST=sims-postgres`, `REDIS_HOST=sims-redis`).
+
+- **Frontend to Backend:** The frontend is a separate resource and does NOT share the backend's internal network. Communication happens through Traefik using the public API domain (`https://api.yourdomain.com`), not via Docker service names.
+
+- **Volume Sharing:** Services in the same resource automatically share named volumes. If deploying backend and rqworker as separate resources, both must mount persistent volumes at `/app/media` for media file sharing.
+
+### Alternative: All-in-One Resource
+
+You can deploy all services (backend, frontend, postgres, redis, rqworker) in a single Coolify resource using the reference `docker-compose.coolify.yml` file. This approach:
+- ✅ Simplifies network configuration (all services share one network)
+- ✅ Automatically shares volumes
+- ❌ Couples frontend and backend deployment (can't deploy independently)
+- ❌ Less flexible for scaling individual services
 
 ## Environment Variable Reference
 

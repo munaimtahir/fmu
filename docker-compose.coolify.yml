@@ -2,8 +2,17 @@
 # Coolify + Traefik Deployment Reference
 # ============================================
 # This compose file is a REFERENCE for Coolify deployment structure.
-# In Coolify, you will deploy backend and frontend as SEPARATE resources.
-# This file shows how services should be configured.
+# 
+# RECOMMENDED DEPLOYMENT APPROACH:
+# Deploy as TWO separate Coolify resources via the Coolify UI:
+# 1. Backend Stack (postgres + redis + backend + rqworker) - one resource
+# 2. Frontend - separate resource
+# This allows backend services to share network and volumes automatically,
+# while keeping frontend deployment independent.
+#
+# ALTERNATIVE:
+# You can deploy all services together in one resource using this file,
+# but it couples frontend and backend deployments.
 # 
 # IMPORTANT: NO host ports are published (no "80:80", "8000:8000", etc.)
 # Traefik (via Coolify) handles all routing and TLS termination.
@@ -36,7 +45,7 @@ services:
       - DB_PORT=${DB_PORT}
       # Django Core
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-      - DJANGO_DEBUG=False
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-False}
       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
       # Proxy Settings (CRITICAL for Traefik)
       - USE_X_FORWARDED_HOST=True
