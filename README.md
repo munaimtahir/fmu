@@ -9,9 +9,28 @@
 
 A comprehensive, production-ready Student Information Management System built with Django REST Framework and React.
 
-## 🚀 Quick Start
+## Quick Start
 
-### One-Command Demo Setup (Recommended)
+### Local Development (Recommended)
+
+```bash
+# Clone, setup, and run locally
+git clone https://github.com/munaimtahir/Fmu.git && cd Fmu && \
+cp .env.example .env && \
+docker-compose -f docker-compose.local.yml up -d && \
+sleep 10 && \
+docker-compose -f docker-compose.local.yml exec backend python manage.py migrate && \
+docker-compose -f docker-compose.local.yml exec backend python manage.py seed_demo --students 30
+```
+
+**Access the application:**
+- 🌐 Frontend: http://localhost:5174
+- 🔌 Backend API: http://localhost:8001
+- 👨‍💼 Admin Panel: http://localhost:8001/admin/
+
+**See [docs/LOCAL_DEV.md](docs/LOCAL_DEV.md) for complete local development guide.**
+
+### One-Command Demo Setup (Legacy)
 
 ```bash
 # Clone, setup, and run with demo data in one command
@@ -24,9 +43,9 @@ docker compose exec backend python manage.py seed_demo --students 30
 ```
 
 **Access the application:**
-- 🌐 Frontend: http://localhost:5173
-- 🔌 Backend API: http://localhost:8000
-- 👨‍💼 Admin Panel: http://localhost:8000/admin
+- 🌐 Frontend: http://localhost:5174
+- 🔌 Backend API: http://localhost:8001
+- 👨‍💼 Admin Panel: http://localhost:8001/admin
 
 ### Demo Accounts
 
@@ -157,7 +176,8 @@ SIMS is a production-ready academic digitization system designed to manage:
 
 ### Infrastructure
 - Docker & Docker Compose
-- Nginx (reverse proxy)
+- Coolify + Traefik (production deployment)
+- Nginx (legacy/local development)
 - GitHub Actions (CI/CD)
 
 ## Prerequisites
@@ -391,7 +411,32 @@ Key environment variables (see `.env.example` for full list):
 
 ## Deployment
 
-### Quick Production Deployment
+### Coolify + Traefik Deployment (Recommended)
+
+Deploy on a VPS using Coolify with Traefik as the reverse proxy:
+
+```bash
+# 1. Follow the comprehensive Coolify deployment guide
+# See: docs/DEPLOY_COOLIFY_TRAEFIK.md
+
+# 2. Deploy backend and frontend as separate resources
+# - Backend: api.yourdomain.com (port 8000)
+# - Frontend: app.yourdomain.com (port 80)
+
+# 3. Configure environment variables in Coolify dashboard
+# - USE_X_FORWARDED_HOST=True
+# - SECURE_PROXY_SSL_HEADER=True
+# - SECURE_SSL_REDIRECT=False
+
+# 4. Traefik handles SSL/TLS automatically via Let's Encrypt
+```
+
+**Complete guides:**
+- **[Coolify + Traefik Deployment](docs/DEPLOY_COOLIFY_TRAEFIK.md)** - Recommended production deployment
+- **[Local Development](docs/LOCAL_DEV.md)** - Run locally with Docker Compose
+- **[Smoke Tests](docs/SMOKE_TEST.md)** - Verify deployment health
+
+### Quick Production Deployment (Legacy)
 
 ```bash
 # 1. Clone and configure
@@ -419,7 +464,10 @@ docker compose -f docker-compose.prod.yml exec backend python manage.py createsu
 - Enable HTTPS (see [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md))
 
 **Complete guides:**
-- [docs/SETUP.md](docs/SETUP.md) - Detailed deployment instructions
+- **[Coolify + Traefik Deployment](docs/DEPLOY_COOLIFY_TRAEFIK.md)** - Recommended production deployment
+- **[Local Development](docs/LOCAL_DEV.md)** - Run locally with Docker Compose
+- **[Smoke Tests](docs/SMOKE_TEST.md)** - Verify deployment health
+- [docs/SETUP.md](docs/SETUP.md) - Detailed deployment instructions (legacy)
 - [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) - Production security
 - [docs/CI-CD.md](docs/CI-CD.md) - CI/CD pipeline documentation
 
