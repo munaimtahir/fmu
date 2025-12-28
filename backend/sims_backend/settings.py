@@ -255,7 +255,7 @@ from core.jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS  # noqa: E402, F401
 
 # Production Security Settings
 # These settings are only active when DEBUG=False (production mode)
-# Configured for deployment behind Caddy reverse proxy (TLS terminates at Caddy)
+# Configured for deployment behind Caddy reverse proxy (TLS terminates at Caddy)if not DEBUG:
 if not DEBUG:
     # HTTPS Enforcement
     SECURE_SSL_REDIRECT = True
@@ -276,4 +276,4 @@ if not DEBUG:
 
     # Security Headers
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = "DENY"
+    X_FRAME_OPTIONS = "DENY
