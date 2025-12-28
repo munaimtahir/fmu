@@ -11,9 +11,26 @@ class TermSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(serializers.ModelSerializer):
+    level_display = serializers.CharField(source="get_level_display", read_only=True)
+    category_display = serializers.CharField(source="get_category_display", read_only=True)
+    full_name = serializers.CharField(source="get_full_name", read_only=True)
+
     class Meta:
         model = Program
-        fields = ["id", "name", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "level",
+            "level_display",
+            "category",
+            "category_display",
+            "name",
+            "duration_years",
+            "description",
+            "is_active",
+            "full_name",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["created_at", "updated_at"]
 
 

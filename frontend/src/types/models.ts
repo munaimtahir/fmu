@@ -2,13 +2,78 @@
  * Type definitions for API models
  */
 
+// Program model
+export interface Program {
+  id: number
+  level: 'undergraduate' | 'postgraduate' | 'diploma' | 'other'
+  level_display: string
+  category: string
+  category_display: string
+  name: string
+  duration_years: number
+  description?: string
+  is_active: boolean
+  full_name: string
+  created_at: string
+  updated_at: string
+}
+
 // Student model
 export interface Student {
   id: number
   reg_no: string
   name: string
-  program: string
-  status: 'Active' | 'Inactive' | 'Graduated' | 'Suspended'
+  program: number
+  program_name?: string
+  program_full_name?: string
+  batch_year: number
+  current_year: number
+  status: 'active' | 'inactive' | 'graduated' | 'suspended'
+  status_display?: string
+  email?: string
+  phone?: string
+  date_of_birth?: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Student Application model
+export interface StudentApplication {
+  id: number
+  full_name: string
+  date_of_birth: string
+  email: string
+  phone: string
+  address?: string
+  program: number
+  program_name?: string
+  program_full_name?: string
+  batch_year: number
+  previous_qualification?: string
+  previous_institution?: string
+  status: 'pending' | 'approved' | 'rejected'
+  status_display?: string
+  notes?: string
+  documents?: string
+  reviewed_by?: number
+  reviewed_by_name?: string
+  reviewed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+// Student Application Create (for public submission)
+export interface StudentApplicationCreate {
+  full_name: string
+  date_of_birth: string
+  email: string
+  phone: string
+  address?: string
+  program: number
+  batch_year: number
+  previous_qualification?: string
+  previous_institution?: string
+  documents?: File
 }
 
 // Course model

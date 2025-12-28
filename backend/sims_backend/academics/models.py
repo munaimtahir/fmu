@@ -21,10 +21,93 @@ class Term(models.Model):
 
 
 class Program(TimeStampedModel):
-    name = models.CharField(max_length=128, unique=True)
+    """Academic program with hierarchical structure: Level -> Category -> Program Name"""
+
+    # Program Level choices
+    LEVEL_UNDERGRADUATE = "undergraduate"
+    LEVEL_POSTGRADUATE = "postgraduate"
+    LEVEL_DIPLOMA = "diploma"
+    LEVEL_OTHER = "other"
+
+    LEVEL_CHOICES = [
+        (LEVEL_UNDERGRADUATE, "Undergraduate"),
+        (LEVEL_POSTGRADUATE, "Postgraduate"),
+        (LEVEL_DIPLOMA, "Diploma"),
+        (LEVEL_OTHER, "Other"),
+    ]
+
+    # Category choices for Undergraduate
+    CATEGORY_UG_MEDICAL = "ug_medical"
+    CATEGORY_UG_DENTAL = "ug_dental"
+    CATEGORY_UG_ALLIED_HEALTH = "ug_allied_health"
+    CATEGORY_UG_NURSING = "ug_nursing"
+
+    # Category choices for Postgraduate
+    CATEGORY_PG_CLINICAL = "pg_clinical"
+    CATEGORY_PG_BASIC_SCIENCES = "pg_basic_sciences"
+    CATEGORY_PG_ALLIED_HEALTH = "pg_allied_health"
+    CATEGORY_PG_NURSING = "pg_nursing"
+
+    # Category choices for Diploma
+    CATEGORY_DIPLOMA_CLINICAL_TRAINING = "diploma_clinical_training"
+    CATEGORY_DIPLOMA_BASIC_SCIENCES = "diploma_basic_sciences"
+    CATEGORY_DIPLOMA_OTHER = "diploma_other"
+
+    # Category choices for Other
+    CATEGORY_OTHER = "other"
+
+    CATEGORY_CHOICES = [
+        # Undergraduate categories
+        (CATEGORY_UG_MEDICAL, "Medical"),
+        (CATEGORY_UG_DENTAL, "Dental"),
+        (CATEGORY_UG_ALLIED_HEALTH, "Allied Health Sciences"),
+        (CATEGORY_UG_NURSING, "Nursing"),
+        # Postgraduate categories
+        (CATEGORY_PG_CLINICAL, "Clinical"),
+        (CATEGORY_PG_BASIC_SCIENCES, "Basic Sciences"),
+        (CATEGORY_PG_ALLIED_HEALTH, "Allied Health Sciences"),
+        (CATEGORY_PG_NURSING, "Nursing"),
+        # Diploma categories
+        (CATEGORY_DIPLOMA_CLINICAL_TRAINING, "Clinical Training"),
+        (CATEGORY_DIPLOMA_BASIC_SCIENCES, "Basic Sciences"),
+        (CATEGORY_DIPLOMA_OTHER, "Other"),
+        # Other
+        (CATEGORY_OTHER, "Other"),
+    ]
+
+    level = models.CharField(
+        max_length=32,
+        choices=LEVEL_CHOICES,
+        help_text="Program level: Undergraduate, Postgraduate, Diploma, or Other",
+    )
+    category = models.CharField(
+        max_length=64,
+        choices=CATEGORY_CHOICES,
+        help_text="Program category within the level",
+    )
+    name = models.CharField(
+        max_length=128,
+        help_text="Program name (e.g., MBBS, BDS, MD, etc.)",
+    )
+    duration_years = models.PositiveSmallIntegerField(
+        default=4,
+        help_text="Program duration in years",
+    )
+    description = models.TextField(blank=True, help_text="Program description")
+    is_active = models.BooleanField(
+        default=True, help_text="Whether this program is currently active"
+    )
+
+    class Meta:
+        unique_together = [("level", "category", "name")]
+        ordering = ["level", "category", "name"]
 
     def __str__(self):
-        return self.name
+        return f"{self.get_level_display()} - {self.get_category_display()} - {self.name}"
+
+    def get_full_name(self):
+        """Returns a human-readable full program name"""
+        return f"{self.name} ({self.get_level_display()})"
 
 
 class Course(models.Model):

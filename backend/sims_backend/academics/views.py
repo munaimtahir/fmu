@@ -1,7 +1,7 @@
 from django_filters.rest_framework import CharFilter, DjangoFilterBackend, FilterSet
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from sims_backend.common_permissions import (
     IsAdminOrRegistrarReadOnlyFacultyStudent,
@@ -33,10 +33,16 @@ class ProgramViewSet(viewsets.ModelViewSet):
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated, IsAdminOrRegistrarReadOnlyFacultyStudent]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ["name"]
-    search_fields = ["name"]
-    ordering_fields = ["id", "name"]
-    ordering = ["id"]
+    filterset_fields = ["name", "level", "category", "is_active"]
+    search_fields = ["name", "description"]
+    ordering_fields = ["id", "name", "level", "category"]
+    ordering = ["level", "category", "name"]
+    
+    def get_permissions(self):
+        """Allow public access for list action (for application form)"""
+        if self.action == "list":
+            return [AllowAny()]  # Public access for listing programs
+        return [IsAuthenticated(), IsAdminOrRegistrarReadOnlyFacultyStudent()]
 
 
 class CourseFilter(FilterSet):

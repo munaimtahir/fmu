@@ -21,6 +21,7 @@ import { AssessmentsPage } from '@/features/assessments/AssessmentsPage'
 import { BulkEnrollmentPage } from '@/features/enrollment/BulkEnrollmentPage'
 import { BulkAttendancePage } from '@/features/attendance/BulkAttendancePage'
 import { AnalyticsDashboard } from '@/features/analytics/AnalyticsDashboard'
+import { StudentApplicationPage } from '@/pages/StudentApplicationPage'
 
 /**
  * Application routes configuration
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/apply',
+    element: <StudentApplicationPage />,
   },
   {
     path: '/dashboard',
