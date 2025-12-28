@@ -252,3 +252,28 @@ DEFAULT_FROM_EMAIL = os.getenv(
 # Jazzmin Admin Theme Configuration
 # Django-jazzmin automatically discovers these settings from this module
 from core.jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS  # noqa: E402, F401
+
+# Production Security Settings
+# These settings are only active when DEBUG=False (production mode)
+# Configured for deployment behind Caddy reverse proxy (TLS terminates at Caddy)
+if not DEBUG:
+    # HTTPS Enforcement
+    SECURE_SSL_REDIRECT = True
+    # Trust proxy headers from Caddy reverse proxy
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
+
+    # HSTS (HTTP Strict Transport Security)
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Secure Cookies
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_HTTPONLY = True
+
+    # Security Headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"

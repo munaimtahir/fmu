@@ -5,12 +5,20 @@
 The SIMS system consists of the following services:
 
 ### Core Services
-- **Backend (Django):** REST API on port 8000
-- **Frontend (React/Vite):** UI on port 5173 (dev) / served by Nginx (prod)
+- **Backend (Django):** REST API on port 8000 (exposed on 127.0.0.1:8010)
+- **Frontend (React/Vite):** UI on port 5173 (dev) / served by frontend container (prod)
 - **PostgreSQL:** Database on port 5432
 - **Redis:** Cache and message broker on port 6379
 - **RQ Worker:** Background task processor
-- **Nginx:** Reverse proxy on ports 80/443
+- **Caddy (Host-level):** Reverse proxy on host, handles TLS termination (not in Docker)
+
+### Current Deployment Pattern
+- **Reverse Proxy**: Caddy running on host (not in Docker container)
+- **TLS Termination**: Caddy automatically handles SSL/TLS certificates
+- **App Exposure**: Django container bound to `127.0.0.1:8010` (Docker Pattern A)
+- **Public Access**: `https://sims.alshifalab.pk` → Caddy → `127.0.0.1:8010` → Django
+
+**Note:** The `nginx/` directory exists for reference but is **not used** in the current Caddy-based deployment pattern.
 
 ### Service Dependencies
 ```
@@ -123,7 +131,17 @@ docker exec -it sims_backend_staging python manage.py createsuperuser
 docker exec sims_backend_staging python manage.py seed_demo --students=50
 ```
 
-### SSL Certificate Setup (Let's Encrypt)
+### SSL Certificate Setup
+
+**Current Deployment (Caddy):**
+Caddy automatically handles SSL/TLS certificates via Let's Encrypt. No manual certificate setup is required. Configure Caddy on the host to:
+- Automatically obtain certificates for your domain
+- Handle certificate renewal
+- Proxy requests to `127.0.0.1:8010`
+
+**Alternative Deployment (Nginx + Certbot):**
+The following instructions are for **alternative deployment patterns** using nginx/certbot (not used in current Caddy deployment):
+
 ```bash
 # Update nginx.staging.conf with your domain
 nano nginx/nginx.staging.conf
@@ -141,7 +159,7 @@ docker compose -f docker-compose.staging.yml run --rm certbot certonly \
 docker compose -f docker-compose.staging.yml restart nginx
 ```
 
-**Certificate Auto-Renewal:**
+**Certificate Auto-Renewal (Nginx/Certbot):**
 The certbot container automatically renews certificates every 12 hours.
 
 ### Staging Environment Variables
@@ -418,10 +436,12 @@ find /backups -type f -mtime +30 -delete
 ### SSL Certificate Renewal
 ```bash
 # Renew Let's Encrypt certificate
-docker exec sims_nginx certbot renew
+# For Caddy deployment: Certificates are automatically renewed by Caddy
+# No manual renewal needed
 
-# Reload Nginx
-docker exec sims_nginx nginx -s reload
+# For alternative nginx/certbot deployment:
+# docker exec sims_nginx certbot renew
+# docker exec sims_nginx nginx -s reload
 ```
 
 ### Security Scanning

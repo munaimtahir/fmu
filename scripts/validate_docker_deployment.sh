@@ -70,18 +70,35 @@ check $? "docker-compose.prod.yml exists"
 test -f docker-compose.staging.yml
 check $? "docker-compose.staging.yml exists"
 
-# nginx files
-test -f nginx/nginx.conf
-check $? "nginx/nginx.conf exists"
+# nginx files (optional - not used in Caddy-based deployment)
+# Note: These checks are warnings, not failures, as nginx is not used in current deployment
+if [ -f "nginx/nginx.conf" ]; then
+    echo -e "${GREEN}✅ nginx/nginx.conf exists (optional)${NC}"
+    ((PASSED++))
+else
+    echo -e "${YELLOW}⚠️  nginx/nginx.conf not found (optional, not used in Caddy deployment)${NC}"
+fi
 
-test -f nginx/nginx.staging.conf
-check $? "nginx/nginx.staging.conf exists"
+if [ -f "nginx/nginx.staging.conf" ]; then
+    echo -e "${GREEN}✅ nginx/nginx.staging.conf exists (optional)${NC}"
+    ((PASSED++))
+else
+    echo -e "${YELLOW}⚠️  nginx/nginx.staging.conf not found (optional, not used in Caddy deployment)${NC}"
+fi
 
-test -f nginx/conf.d/default.conf
-check $? "nginx/conf.d/default.conf exists"
+if [ -f "nginx/conf.d/default.conf" ]; then
+    echo -e "${GREEN}✅ nginx/conf.d/default.conf exists (optional)${NC}"
+    ((PASSED++))
+else
+    echo -e "${YELLOW}⚠️  nginx/conf.d/default.conf not found (optional, not used in Caddy deployment)${NC}"
+fi
 
-test -f nginx/conf.d/production.conf
-check $? "nginx/conf.d/production.conf exists"
+if [ -f "nginx/conf.d/production.conf" ]; then
+    echo -e "${GREEN}✅ nginx/conf.d/production.conf exists (optional)${NC}"
+    ((PASSED++))
+else
+    echo -e "${YELLOW}⚠️  nginx/conf.d/production.conf not found (optional, not used in Caddy deployment)${NC}"
+fi
 
 # Environment file
 test -f .env.example
@@ -114,13 +131,25 @@ if [ "$TEMP_ENV_CREATED" = true ]; then
 fi
 
 echo ""
-echo "4. Checking IP configuration (172.237.71.40)..."
+echo "4. Checking production domain configuration..."
 
-grep -q "172.237.71.40" nginx/conf.d/production.conf
-check $? "IP found in nginx/conf.d/production.conf"
+# Check for production domain in .env.example (more relevant than IP for Caddy deployment)
+if [ -f ".env.example" ]; then
+    if grep -q "sims.alshifalab.pk" .env.example; then
+        echo -e "${GREEN}✅ Production domain (sims.alshifalab.pk) found in .env.example${NC}"
+        ((PASSED++))
+    else
+        echo -e "${YELLOW}⚠️  Production domain not found in .env.example${NC}"
+    fi
+fi
 
-grep -q "172.237.71.40" .env.example
-check $? "IP found in .env.example"
+# Optional: Check nginx config if it exists (for alternative deployments)
+if [ -f "nginx/conf.d/production.conf" ]; then
+    if grep -q "172.237.71.40" nginx/conf.d/production.conf; then
+        echo -e "${GREEN}✅ IP found in nginx/conf.d/production.conf (optional, for alternative deployment)${NC}"
+        ((PASSED++))
+    fi
+fi
 
 echo ""
 echo "5. Checking environment configuration..."

@@ -86,24 +86,19 @@ Store in secure secret management:
 
 **Always use HTTPS in production:**
 
-```env
-# Force HTTPS redirects
-SECURE_SSL_REDIRECT=True
+The production security settings are **already implemented** in `settings.py` and automatically activate when `DEBUG=False`. These settings are configured for deployment behind a reverse proxy (Caddy) where TLS terminates at the proxy level.
 
-# HSTS (HTTP Strict Transport Security)
-SECURE_HSTS_SECONDS=31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS=True
-SECURE_HSTS_PRELOAD=True
+**Current Deployment Architecture:**
+- **Reverse Proxy**: Caddy running on host (not in Docker)
+- **TLS Termination**: Caddy handles SSL/TLS certificates
+- **App Configuration**: Django receives proxied HTTPS requests via `X-Forwarded-Proto` header
 
-# Secure cookies
-SESSION_COOKIE_SECURE=True
-CSRF_COOKIE_SECURE=True
-```
-
-Add to `settings.py` for production:
+**Security settings in `settings.py` (production mode only):**
 ```python
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -111,10 +106,11 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     CSRF_COOKIE_HTTPONLY = True
     SESSION_COOKIE_HTTPONLY = True
-    SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 ```
+
+**Note:** The `SECURE_PROXY_SSL_HEADER` setting is critical for deployments behind a reverse proxy. It tells Django to trust the `X-Forwarded-Proto` header from Caddy, preventing redirect loops.
 
 ### 3. CORS Configuration
 
@@ -225,7 +221,25 @@ docker compose -f docker-compose.prod.yml up -d
 
 ## HTTPS Configuration
 
-### Using Let's Encrypt with Certbot
+### Current Deployment (Caddy)
+
+**Primary Deployment Pattern:** The application is deployed behind **Caddy** running on the host, which handles TLS termination automatically.
+
+- **Caddy** automatically obtains and renews Let's Encrypt certificates
+- **Caddy** proxies requests to the Django container on `127.0.0.1:8010`
+- Django receives proxied HTTPS requests via `X-Forwarded-Proto` header
+- No additional SSL configuration needed in Django - security settings in `settings.py` handle HTTPS enforcement
+
+**Caddy Configuration:** Configure Caddy on the host to:
+- Handle TLS/SSL certificates automatically
+- Proxy requests to `127.0.0.1:8010` (Django container)
+- Set `X-Forwarded-Proto: https` header
+
+### Alternative Deployment (Nginx + Certbot)
+
+**Note:** The following sections are for **alternative deployment patterns** using nginx/certbot. These are **not used** in the current Caddy-based deployment but are documented for reference.
+
+#### Using Let's Encrypt with Certbot
 
 1. Install Certbot:
 ```bash
@@ -243,7 +257,7 @@ certbot --nginx -d yourdomain.com -d www.yourdomain.com
 certbot renew --dry-run
 ```
 
-### Nginx SSL Configuration
+#### Nginx SSL Configuration
 
 Update `nginx/conf.d/production.conf`:
 

@@ -203,11 +203,11 @@ else
     check_fail "Frontend Dockerfile not found"
 fi
 
-# Check nginx configuration
+# Check nginx configuration (optional - not used in Caddy-based deployment)
 if [ -d "nginx" ]; then
-    check_pass "Nginx directory exists"
+    check_pass "Nginx directory exists (optional, not used in Caddy deployment)"
 else
-    check_warn "Nginx directory not found"
+    check_warn "Nginx directory not found (optional, not used in Caddy deployment)"
 fi
 
 echo ""
