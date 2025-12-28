@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:14-alpine
@@ -32,9 +30,11 @@ services:
     restart: unless-stopped
 
   backend:
-    build: .
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: sims_backend
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn sims_backend.wsgi:application --bind 0.0.0.0:8000
     env_file:
       - .env
     volumes:
