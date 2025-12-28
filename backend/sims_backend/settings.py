@@ -276,4 +276,4 @@ if not DEBUG:
 
     # Security Headers
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = "DENY
+    X_FRAME_OPTIONS = "DENY"

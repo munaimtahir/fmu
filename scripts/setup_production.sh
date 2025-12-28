@@ -69,13 +69,24 @@ docker compose exec -T backend python manage.py migrate --noinput
 echo -e "${GREEN}✓ Migrations complete${NC}"
 
 echo ""
-echo "Step 3: Collecting static files..."
+echo "Step 3: Building frontend..."
+echo "-----------------------------------"
+if [ -f "scripts/build_frontend.sh" ]; then
+    chmod +x scripts/build_frontend.sh
+    ./scripts/build_frontend.sh
+    echo -e "${GREEN}✓ Frontend built${NC}"
+else
+    echo -e "${YELLOW}⚠️  Frontend build script not found. Skipping frontend build.${NC}"
+fi
+
+echo ""
+echo "Step 4: Collecting static files..."
 echo "-----------------------------------"
 docker compose exec -T backend python manage.py collectstatic --noinput
 echo -e "${GREEN}✓ Static files collected${NC}"
 
 echo ""
-echo "Step 4: Creating superuser and seeding demo data..."
+echo "Step 5: Creating superuser and seeding demo data..."
 echo "-----------------------------------------------------"
 echo "This will create:"
 echo "  - Admin user: admin / admin123"

@@ -49,6 +49,19 @@ services:
       - "127.0.0.1:8010:8000"   # 🔑 Pattern A: THIS is the only exposed port
     restart: unless-stopped
 
+  frontend-builder:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.build
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://sims.alshifalab.pk/api}
+    volumes:
+      - ./frontend/dist:/output
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-https://sims.alshifalab.pk/api}
+    profiles:
+      - build
+
 volumes:
   postgres_data:
   redis_data:
